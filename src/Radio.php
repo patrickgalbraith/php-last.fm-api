@@ -7,7 +7,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Radio {
+class LastFM_Radio {
  
   /**
    * Get a list of a radio's playlists on last.fm.
@@ -22,18 +22,18 @@ class Radio {
    * @access  public
    * @throws  Error
    * 
-   * @return Playlist
+   * @return LastFM_Playlist
    *
    */
-  public static function getPlaylists(Session $session, $speed_multiplier = null, $bitrate = null,  
+  public static function getPlaylists(LastFM_Session $session, $speed_multiplier = null, $bitrate = null,  
     $discovery = null, $rtp = null){
     
-    $xml = CallerFactory::getDefaultCaller()->signedCall('radio.getPlaylist', array(
+    $xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('radio.getPlaylist', array(
       'discovery' => $discovery,
       'rtp' => $rtp,
       'speed_multiplier' => $speed_multiplier,
       'bitrate' => $bitrate), $session);
 
-    return Playlist::fromSimpleXMLElement($xml);
+    return LastFM_Playlist::fromSimpleXMLElement($xml);
   }
 }

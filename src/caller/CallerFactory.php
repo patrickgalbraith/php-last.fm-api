@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class CallerFactory {
+class LastFM_Caller_CallerFactory {
 	/** A default {@link Caller} class.
 	 *
 	 * @var string
@@ -21,7 +21,7 @@ class CallerFactory {
 	 * @access	public
 	 */
 	public static function getCurlCaller(){
-		return CurlCaller::getInstance();
+		return LastFM_Caller_CurlCaller::getInstance();
 	}
 
 	/** Get a {@link PeclCaller} instance.
@@ -31,7 +31,7 @@ class CallerFactory {
 	 * @access	public
 	 */
 	public static function getPeclCaller(){
-		return PeclCaller::getInstance();
+		return LastFM_Caller_PeclCaller::getInstance();
 	}
 
 	/** Get a {@link SocketCaller} instance.
@@ -41,7 +41,7 @@ class CallerFactory {
 	 * @access	public
 	 */
 	public static function getSocketCaller(){
-		return SocketCaller::getInstance();
+		return LastFM_Caller_SocketCaller::getInstance();
 	}
 
 	/** Get a {@link Caller} instance.
@@ -65,11 +65,11 @@ class CallerFactory {
 	 * @access	public
 	 */
 	public function setDefaultCaller($class){
-		if(get_parent_class($class) == 'Caller'){
+		if(get_parent_class($class) == 'LastFM_Caller'){
 			self::$default = $class;
 		}
 		else{
-			throw new Exception("Class '".$class."' does not extend 'Caller'!");
+			throw new Exception("Class '".$class."' does not extend 'LastFM_Caller'!");
 		}
 	}
 }

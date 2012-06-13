@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-final class DiskCache extends Cache {
+final class LastFM_Cache_DiskCache extends LastFM_Cache {
 	/** The directory where the cache data is stored.
 	 *
 	 * @var		string

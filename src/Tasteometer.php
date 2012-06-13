@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Tasteometer {
+class LastFM_Tasteometer {
 	/** Possible comparison types.
 	 *
 	 * @var integer
@@ -40,7 +40,7 @@ class Tasteometer {
 		}
 
 		/* API call. */
-		$xml = CallerFactory::getDefaultCaller()->call('tasteometer.compare', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('tasteometer.compare', array(
 			'type1'  => $type1,
 			'type2'  => $type2,
 			'value1' => $value1,
@@ -52,18 +52,18 @@ class Tasteometer {
 		$artists = array();
 
 		foreach($xml->result->artists->children() as $artist){
-			$artists[] = Artist::fromSimpleXMLElement($artist);
+			$artists[] = LastFM_Artist::fromSimpleXMLElement($artist);
 		}
 
 		/* Get input information. */
 		$inputs = array();
 
 		foreach($xml->input->children() as $input){
-			$inputs[] = User::fromSimpleXMLElement($input);
+			$inputs[] = LastFM_User::fromSimpleXMLElement($input);
 		}
 
 		return array(
-			'score'   => Util::toFloat($xml->result->score),
+			'score'   => LastFM_Util::toFloat($xml->result->score),
 			'input'   => $inputs,
 			'artists' => $artists
 		);

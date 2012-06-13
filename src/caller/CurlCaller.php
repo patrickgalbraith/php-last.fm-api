@@ -6,10 +6,10 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-final class CurlCaller extends Caller {
+final class LastFM_Caller_CurlCaller extends LastFM_Caller {
 	/** A CurlCaller instance.
 	 *
-	 * @var CurlCaller
+	 * @var LastFM_Caller_CurlCaller
 	 * @access	protected
 	 */
 	private static $instance;
@@ -57,7 +57,7 @@ final class CurlCaller extends Caller {
 	 */
 	public static function getInstance(){
 		if(!is_object(self::$instance)){
-			self::$instance = new CurlCaller();
+			self::$instance = new LastFM_Caller_CurlCaller();
 		}
 
 		return self::$instance;
@@ -74,7 +74,7 @@ final class CurlCaller extends Caller {
 	 */
 	protected function internalCall($params, $requestMethod = 'GET'){
 		/* Create caching hash. */
-		$hash = Cache::createHash($params);
+		$hash = LastFM_Cache::createHash($params);
 
 		/* Check if response is cached. */
 		if($this->cache != null &&
@@ -84,6 +84,12 @@ final class CurlCaller extends Caller {
 			$response = $this->cache->load($hash);
 		}
 		else{
+            
+            /* Check if we need to throttle */
+            if($this->isRateLimited()) {
+                throw new LastFM_Error('Rate limit exceeded', 29);
+            }
+            
 			/* Build request query */
 			$query = http_build_query($params, '', '&');
 
@@ -103,7 +109,10 @@ final class CurlCaller extends Caller {
 
 			/* Get response. */
 			$response = curl_exec($this->curl);
-
+            
+            /* Update rate limit info. */
+            $this->updateRateLimit();
+            
 			/* Cache it. */
 			if($this->cache != null){
 				if(array_key_exists('Expires', $this->headers)){
@@ -126,15 +135,15 @@ final class CurlCaller extends Caller {
 		$response = new SimpleXMLElement($response);
 
 		/* Return response or throw an error. */
-		if(Util::toString($response['status']) === 'ok'){
+		if(LastFM_Util::toString($response['status']) === 'ok'){
 			if($response->children()->{0}){
 				return $response->children()->{0};
 			}
 		}
 		else{
-			throw new Error(
-				Util::toString($response->error),
-				Util::toInteger($response->error['code'])
+			throw new LastFM_Error(
+				LastFM_Util::toString($response->error),
+				LastFM_Util::toInteger($response->error['code'])
 			);
 		}
 	}

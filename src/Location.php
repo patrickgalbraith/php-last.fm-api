@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Location {
+class LastFM_Location {
 	/** The locations city.
 	 *
 	 * @var string
@@ -37,7 +37,7 @@ class Location {
 
 	/** The locations geographical coordinate.
 	 *
-	 * @var Point
+	 * @var LastFM_Point
 	 * @access	private
 	 */
 	private $point;
@@ -61,7 +61,7 @@ class Location {
 	 * @access	public
 	 */
 	public function __construct($city, $country, $street, $postalCode,
-								Point $point, $timezone){
+								LastFM_Point $point, $timezone){
 		$this->city       = $city;
 		$this->country    = $country;
 		$this->street     = $street;
@@ -136,16 +136,16 @@ class Location {
 	public static function fromSimpleXMLElement(SimpleXMLElement $xml){
 		$geo = $xml->children('http://www.w3.org/2003/01/geo/wgs84_pos#');
 
-		return new Location(
-			Util::toString($xml->city),
-			Util::toString($xml->country),
-			Util::toString($xml->street),
-			Util::toString($xml->postalcode),
-			($geo->point)?new Point(
-				Util::toFloat($geo->point->lat),
-				Util::toFloat($geo->point->long)
+		return new LastFM_Location(
+			LastFM_Util::toString($xml->city),
+			LastFM_Util::toString($xml->country),
+			LastFM_Util::toString($xml->street),
+			LastFM_Util::toString($xml->postalcode),
+			($geo->point)?new LastFM_Point(
+				LastFM_Util::toFloat($geo->point->lat),
+				LastFM_Util::toFloat($geo->point->long)
 			):null,
-			Util::toString($xml->timezome)
+			LastFM_Util::toString($xml->timezome)
 		);
 	}
 }

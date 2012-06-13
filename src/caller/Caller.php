@@ -6,10 +6,10 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-abstract class Caller {
+abstract class LastFM_Caller {
 	/** A Cache instance
 	 *
-	 * @var Cache
+	 * @var LastFM_Cache
 	 * @access	protected
 	 */
 	protected $cache;
@@ -34,7 +34,21 @@ abstract class Caller {
 	 * @access	public
 	 */
 	const API_URL = 'http://ws.audioscrobbler.com/2.0/';
-
+    
+    /** Last.fm API requests per minute limit
+	 *
+	 * @var int
+	 * @access	public
+	 */
+	const API_RATE_LIMIT = 300;
+    
+    /** Requests per minute limit
+	 *
+	 * @var int
+	 * @access	protected
+	 */
+    protected $rateLimit = 0;
+    
 	/** Get a Caller instance.
 	 *
 	 * @return	Caller	A Caller instance.
@@ -61,8 +75,8 @@ abstract class Caller {
 
 		/* Add call parameters to other request parameters */
 		$params = array_merge($callParams, $params);
-		$params = Util::toUTF8($params);
-
+		$params = LastFM_Util::toUTF8($params);
+        
 		/* Call API */
 		return $this->internalCall($params, $requestMethod);
 	}
@@ -92,15 +106,78 @@ abstract class Caller {
 
 		/* Add call parameters to other request parameters */
 		$params = array_merge($callParams, $params);
-		$params = Util::toUTF8($params);
+		$params = LastFM_Util::toUTF8($params);
 
 		/* Add API signature */
-		$params['api_sig'] = Auth::getApiSignature($params, $this->apiSecret);
+		$params['api_sig'] = LastFM_Auth::getApiSignature($params, $this->apiSecret);
 
 		/* Call API */
 		return $this->internalCall($params, $requestMethod);
 	}
 
+    
+    public function isRateLimited() {
+        
+        if($this->rateLimit <= 0)
+            return false;
+        
+        $minute = 60;
+        
+        if($this->calculateNewMinuteThottle() > $minute)
+            return true;
+        
+        return false;
+    }
+    
+    private function calculateNewMinuteThottle() {
+        
+        $minute = 60;
+        $throttleInfo = $this->getThrottleInfo();
+        
+        if(empty($throttleInfo)) {
+            $throttleInfo = new stdClass;
+            $throttleInfo->minuteThrottle = null;
+            $throttleInfo->lastApiRequest = time();
+        }
+        
+        $lastApiRequest = $throttleInfo->lastApiRequest; # get from the cache; in epoch seconds
+        $lastApiDiff = time() - $lastApiRequest; # in seconds
+        $minuteThrottle = $throttleInfo->minuteThrottle; # get from the cache
+        
+        if(is_null($minuteThrottle)){
+            $newMinuteThrottle = 0;
+        }
+        else{
+            $newMinuteThrottle = $minuteThrottle - $lastApiDiff;
+            $newMinuteThrottle = $newMinuteThrottle < 0 ? 0 : $newMinuteThrottle;
+            $newMinuteThrottle += $minute / $this->rateLimit;
+        }
+        
+        return $newMinuteThrottle;
+    }
+    
+    public function updateRateLimit() {
+        $directory = APPPATH.'cache/lastfm.cache';
+        
+        $data = new stdClass;
+        $data->minuteThrottle = $this->calculateNewMinuteThottle();
+        $data->lastApiRequest = time();
+        
+        file_put_contents($directory.'/throttleInfo.json', json_encode($data));
+    }
+    
+    public function getThrottleInfo() {
+        $directory = APPPATH.'cache/lastfm.cache';
+        
+        $data = @file_get_contents($directory.'/throttleInfo.json');
+                
+        if($data === false)
+            return false;
+        else
+            return json_decode($data);
+    }
+    
+    
 	/** Send a query using a specified request-method.
 	 *
 	 * @param	string	$query			Query to send. (Required)
@@ -138,6 +215,19 @@ abstract class Caller {
 	public function setApiSecret($apiSecret){
 		$this->apiSecret = $apiSecret;
 	}
+    
+    /** Set the rate limit to be used.
+	 *
+	 * @param	int	$rateLimit	Rate limit setting.
+	 * @access	public
+	 */
+	public function setRateLimit($rateLimit){
+        if($rateLimit > self::API_RATE_LIMIT) {
+            throw new Exception('Specified rateLimit exceeds API rate limit of '.self::API_RATE_LIMIT.' requests per minute.');
+        }
+        
+		$this->rateLimit = (int)$rateLimit;
+	}
 
 	/** Get the last.fm API secret which is used.
 	 *
@@ -165,6 +255,13 @@ abstract class Caller {
 	public function getCache(){
 		return $this->cache;
 	}
+    
+    /** Get the rate limit
+	 *
+	 * @return	int	The current rate limit.
+	 * @access	public
+	 */
+	public function getRateLimit(){
+		return $this->rateLimit;
+	}
 }
-
-?>

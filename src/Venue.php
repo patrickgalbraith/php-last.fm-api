@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Venue {
+class LastFM_Venue {
 	/** The venues name.
 	 *
 	 * @var string
@@ -16,7 +16,7 @@ class Venue {
 
 	/** The venues location.
 	 *
-	 * @var Location
+	 * @var LastFM_Location
 	 * @access private
 	 */
 	private $location;
@@ -36,7 +36,7 @@ class Venue {
 	 *
 	 * @access public
 	 */
-	public function __construct($name, Location $location, $url){
+	public function __construct($name, LastFM_Location $location, $url){
 		$this->name     = $name;
 		$this->location = $location;
 		$thus->url      = $url;
@@ -79,14 +79,14 @@ class Venue {
 	 * @throws	Error
 	 */
 	public static function getEvents($event){
-		$xml = CallerFactory::getDefaultCaller()->call('venue.getEvents', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('venue.getEvents', array(
 			'event' => $event
 		));
 
 		$events = array();
 
 		foreach($xml->children() as $event){
-			$events[] = Event::fromSimpleXMLElement($event);
+			$events[] = LastFM_Event::fromSimpleXMLElement($event);
 		}
 
 		return $events;
@@ -98,14 +98,14 @@ class Venue {
 	 * @param	integer	$limit	The maximum number of results to return. (Optional)
 	 * @param	integer	$page	The page of results to return. (Optional)
 	 * @return	PaginatedResult	A PaginatedResult object.
-	 * @see		PaginatedResult
+	 * @see		LastFM_PaginatedResult
 	 *
 	 * @static
 	 * @access	public
 	 * @throws	Error
 	 */
 	public static function getPastEvents($venue, $limit = null, $page = null){
-		$xml = CallerFactory::getDefaultCaller()->call('venue.getPastEvents', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('venue.getPastEvents', array(
 			'venue' => $venue,
 			'limit' => $limit,
 			'page'  => $page
@@ -114,14 +114,14 @@ class Venue {
 		$events = array();
 
 		foreach($xml->children() as $event){
-			$events[] = Event::fromSimpleXMLElement($event);
+			$events[] = LastFM_Event::fromSimpleXMLElement($event);
 		}
 
-		$perPage = Util::toInteger($xml['perPage']);
+		$perPage = LastFM_Util::toInteger($xml['perPage']);
 
-		return new PaginatedResult(
-			Util::toInteger($xml['total']),
-			(Util::toInteger($xml['page']) - 1) * $perPage,
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($xml['total']),
+			(LastFM_Util::toInteger($xml['page']) - 1) * $perPage,
 			$perPage,
 			$events
 		);
@@ -134,14 +134,14 @@ class Venue {
 	 * @param	integer	$page		The results page you would like to fetch. (Optional)
 	 * @param	string	$country	Filter your results by country. Expressed as an ISO 3166-2 code. (Optional)
 	 * @return	PaginatedResult		A PaginatedResult object.
-	 * @see		PaginatedResult
+	 * @see		LastFM_PaginatedResult
 	 *
 	 * @static
 	 * @access	public
 	 * @throws	Error
 	 */
 	public static function search($venue, $limit = null, $page = null, $country = null){
-		$xml = CallerFactory::getDefaultCaller()->call('venue.search', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('venue.search', array(
 			'venue'   => $venue,
 			'limit'   => $limit,
 			'page'    => $page,
@@ -151,15 +151,15 @@ class Venue {
 		$venues = array();
 
 		foreach($xml->venuematches->children() as $venue){
-			$venues[] = Venue::fromSimpleXMLElement($venue);
+			$venues[] = LastFM_Venue::fromSimpleXMLElement($venue);
 		}
 
 		$opensearch = $xml->children('http://a9.com/-/spec/opensearch/1.1/');
 
-		return new PaginatedResult(
-			Util::toInteger($opensearch->totalResults),
-			Util::toInteger($opensearch->startIndex),
-			Util::toInteger($opensearch->itemsPerPage),
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($opensearch->totalResults),
+			LastFM_Util::toInteger($opensearch->startIndex),
+			LastFM_Util::toInteger($opensearch->itemsPerPage),
 			$venues
 		);
 	}
@@ -174,10 +174,10 @@ class Venue {
 	 * @internal
 	 */
 	public static function fromSimpleXMLElement(SimpleXMLElement $xml){
-		return new Venue(
-			Util::toString($xml->name),
-			Location::fromSimpleXMLElement($xml->location),
-			Util::toString($xml->url)
+		return new LastFM_Venue(
+			LastFM_Util::toString($xml->name),
+			LastFM_Location::fromSimpleXMLElement($xml->location),
+			LastFM_Util::toString($xml->url)
 		);
 	}
 }

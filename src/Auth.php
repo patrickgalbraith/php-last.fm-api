@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Auth {
+class LastFM_Auth {
 	/** Returns a last.fm API signature for the given request parameters.
 	 *
 	 * @param	array	$params		Request parameters.
@@ -41,12 +41,12 @@ class Auth {
 	 * @throws	Error
 	 */
 	public static function getMobileSession($username, $password){
-		$xml = CallerFactory::getDefaultCaller()->signedCall('auth.getMobileSession', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('auth.getMobileSession', array(
 			'username'  => $username,
 			'authToken' => md5($username . md5($password))
 		));
 
-		return Session::fromSimpleXMLElement($xml);
+		return LastFM_Session::fromSimpleXMLElement($xml);
 	}
 
 	/** Returns a session using an authorized token.
@@ -59,11 +59,11 @@ class Auth {
 	 * @throws	Error
 	 */
 	public static function getSession($token){
-		$xml = CallerFactory::getDefaultCaller()->signedCall('auth.getSession', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('auth.getSession', array(
 			'token' => $token
 		));
 
-		return Session::fromSimpleXMLElement($xml);
+		return LastFM_Session::fromSimpleXMLElement($xml);
 	}
 
 	/** Fetch an unauthorized request token for an API account. This is step 2 of the authentication process for desktop applications. Web applications do not need to use this service.
@@ -75,9 +75,9 @@ class Auth {
 	 * @throws	Error
 	 */
 	public static function getToken(){
-		$xml = CallerFactory::getDefaultCaller()->signedCall('auth.getToken');
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('auth.getToken');
 
-		return Util::toString($xml);
+		return LastFM_Util::toString($xml);
 	}
 
 	/** Used by our flash embeds (on trusted domains) to use a site session cookie to seed a ws session without requiring a password. Uses the site cookie so must be accessed over a *.last.fm domain.
@@ -89,9 +89,9 @@ class Auth {
 	 * @throws	Error
 	 */
 	public static function getWebSession(){
-		$xml = CallerFactory::getDefaultCaller()->signedCall('auth.getWebSession');
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('auth.getWebSession');
 
-		return Session::fromSimpleXMLElement($xml);
+		return LastFM_Session::fromSimpleXMLElement($xml);
 	}
 }
 

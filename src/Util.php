@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Util {
+class LastFM_Util {
 	/** Returns the string value of a variable.
 	 *
 	 * @param	mixed	$var	An object.
@@ -52,7 +52,7 @@ class Util {
 	 * @access	public
 	 */
 	public static function toBoolean($var){
-		switch(Util::toString($var)){
+		switch(LastFM_Util::toString($var)){
 			case 'true':
 					return true;
 			case 'false':
@@ -83,21 +83,21 @@ class Util {
 	 * @access	public
 	 */
 	public static function toImageType($var){
-		switch(Util::toString($var)){
+		switch(LastFM_Util::toString($var)){
 			case 'small':
-					return Media::IMAGE_SMALL;
+					return LastFM_Media::IMAGE_SMALL;
 			case 'medium':
-					return Media::IMAGE_MEDIUM;
+					return LastFM_Media::IMAGE_MEDIUM;
 			case 'large':
-					return Media::IMAGE_LARGE;
+					return LastFM_Media::IMAGE_LARGE;
 			case 'huge':
-					return Media::IMAGE_HUGE;
+					return LastFM_Media::IMAGE_HUGE;
 			case 'extralarge':
-					return Media::IMAGE_EXTRALARGE;
+					return LastFM_Media::IMAGE_EXTRALARGE;
 			case 'original':
-					return Media::IMAGE_ORIGINAL;
+					return LastFM_Media::IMAGE_ORIGINAL;
 			default:
-				return Media::IMAGE_UNKNOWN;
+				return LastFM_Media::IMAGE_UNKNOWN;
 		}
 	}
 
@@ -111,7 +111,7 @@ class Util {
 	 */
 	public static function toUTF8($object){
 		if(is_array($object)){
-			return array_map(array('Util', 'toUTF8'), $object);
+			return array_map(array('LastFM_Util', 'toUTF8'), $object);
 		}
 
 		return mb_convert_encoding($object, "UTF-8", "auto");

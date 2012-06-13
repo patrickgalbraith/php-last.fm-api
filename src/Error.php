@@ -6,6 +6,4 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Error extends Exception { }
-
-
+class LastFM_Error extends Exception { }

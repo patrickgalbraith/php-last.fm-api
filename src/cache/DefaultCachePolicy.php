@@ -6,12 +6,14 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version 1.0
  */
-final class DefaultCachePolicy implements CachePolicy {
+final class LastFM_Cache_DefaultCachePolicy implements LastFM_Cache_CachePolicy {
   private static $MINUTE;
   private static $HOUR;
   private static $DAY;
   private static $WEEK;
   private static $MONTH;
+  private static $THREEMONTH;
+  private static $SIXMONTH;
   private static $YEAR;
 
   /** last.fm API methods to be cached for a week.
@@ -33,12 +35,14 @@ final class DefaultCachePolicy implements CachePolicy {
    * @access  public
    */
   public function __construct(){
-    self::$MINUTE  =                 60;
-    self::$HOUR    = self::$MINUTE * 60;
-    self::$DAY     = self::$HOUR   * 24;
-    self::$WEEK    = self::$DAY    *  7;
-    self::$MONTH   = self::$WEEK   *  4.34812141;
-    self::$YEAR    = self::$MONTH  * 12;
+    self::$MINUTE      =                 60;
+    self::$HOUR        = self::$MINUTE * 60;
+    self::$DAY         = self::$HOUR   * 24;
+    self::$WEEK        = self::$DAY    *  7;
+    self::$MONTH       = self::$WEEK   *  4.34812141;
+    self::$THREEMONTH  = self::$MONTH  *  3;
+    self::$SIXMONTH    = self::$MONTH  *  6;
+    self::$YEAR        = self::$MONTH  * 12;
 
     $this->weeklyMethods = array(
       'artist.getSimilar',
@@ -55,7 +59,13 @@ final class DefaultCachePolicy implements CachePolicy {
       'user.getTopAlbums',
       'user.getTopArtists',
       'user.getTopTags',
-      'user.getTopTracks'
+      'user.getTopTracks',
+      'chart.getHypedArtists',
+      'chart.getHypedTracks',
+      'chart.getLovedTracks',
+      'chart.getTopArtists',
+      'chart.getTopTags',
+      'chart.getTopTracks'
     );
 
     $this->weeklyChartsExpiration = self::$WEEK;

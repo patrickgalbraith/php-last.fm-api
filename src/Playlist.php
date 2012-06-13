@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version 1.0
  */
-class Playlist {
+class LastFM_Playlist {
   /** Playlist ID.
    *
    * @var integer
@@ -199,7 +199,7 @@ class Playlist {
   /** Returns a track of this playlist.
    *
    * @param integer $index  Track index.
-   * @return  Track     A Track object.
+   * @return  LastFM_Track     A Track object.
    * @access  public
    */
   public function getTrack($index){
@@ -211,14 +211,14 @@ class Playlist {
    * @param string  $id     The ID of the playlist - this is available in user.getPlaylists. (Required)
    * @param string  $artist   The artist name that corresponds to the track to be added. (Required)
    * @param string  $track    The track name to add to the playlist. (Required)
-   * @param Session $session  A session obtained by {@link de.felixbruns.lastfm.Auth#getSession Auth::getSession} or {@link de.felixbruns.lastfm.Auth#getMobileSession Auth::getMobileSession}. (Required)
+   * @param LastFM_Session $session  A session obtained by {@link de.felixbruns.lastfm.Auth#getSession Auth::getSession} or {@link de.felixbruns.lastfm.Auth#getMobileSession Auth::getMobileSession}. (Required)
    *
    * @static
    * @access  public
    * @throws  Error
    */
   public static function addTrack($id, $artist, $track, $session){
-    CallerFactory::getDefaultCaller()->signedCall('playlist.addTrack', array(
+    LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('playlist.addTrack', array(
       'playlistID' => $id,
       'artist'     => $artist,
       'track'      => $track
@@ -229,20 +229,20 @@ class Playlist {
    *
    * @param string  $title      Title for the playlist. (Optional)
    * @param string  $description  Description for the playlist. (Optional)
-   * @param Session $session    A session obtained by {@link de.felixbruns.lastfm.Auth#getSession Auth::getSession} or {@link de.felixbruns.lastfm.Auth#getMobileSession Auth::getMobileSession}. (Required)
-   * @return  Playlist      A Playlist object.
+   * @param LastFM_Session $session    A session obtained by {@link de.felixbruns.lastfm.Auth#getSession Auth::getSession} or {@link de.felixbruns.lastfm.Auth#getMobileSession Auth::getMobileSession}. (Required)
+   * @return  LastFM_Playlist      A Playlist object.
    *
    * @static
    * @access  public
    * @throws  Error
    */
   public static function create($title = null, $description = null, $session){
-    $xml = CallerFactory::getDefaultCaller()->signedCall('playlist.create', array(
+    $xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('playlist.create', array(
       'title'       => $title,
       'description' => $description
     ), $session , 'POST');
 
-    return Playlist::fromSimpleXMLElement($xml);
+    return LastFM_Playlist::fromSimpleXMLElement($xml);
   }
 
   /** Fetch XSPF playlists using a last.fm playlist url.
@@ -250,8 +250,8 @@ class Playlist {
    * @param string  $playlist A lastfm protocol playlist url ('lastfm://playlist/...'). (Required)
    * @param string  $streaming  Weather to fetch a playlist for streaming. (Optional)
    * @param string  $fod    Weather to fetch a playlist with free on demand tracks. (Optional)
-   * @param Session $session  A session obtained by {@link de.felixbruns.lastfm.Auth#getSession Auth::getSession} or {@link de.felixbruns.lastfm.Auth#getMobileSession Auth::getMobileSession}. (Optional)
-   * @return  Playlist      A Playlist object.
+   * @param LastFM_Session $session  A session obtained by {@link de.felixbruns.lastfm.Auth#getSession Auth::getSession} or {@link de.felixbruns.lastfm.Auth#getMobileSession Auth::getMobileSession}. (Optional)
+   * @return  LastFM_Playlist      A Playlist object.
    *
    * @static
    * @access  public
@@ -259,14 +259,14 @@ class Playlist {
    */
   public static function fetch($playlist, $streaming = null, $fod = null, $session = null){
     if($session == null){
-      $xml = CallerFactory::getDefaultCaller()->call('playlist.fetch', array_filter(array(
+      $xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('playlist.fetch', array_filter(array(
         'playlistURL' => $playlist,
         'streaming'   => $streaming,
         'fod'         => $fod
       )));
     }
     else{
-      $xml = CallerFactory::getDefaultCaller()->call('playlist.fetch', array_filter(array(
+      $xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('playlist.fetch', array_filter(array(
         'playlistURL' => $playlist,
         'streaming'   => $streaming,
         'fod'         => $fod,
@@ -274,13 +274,13 @@ class Playlist {
       )));
     }
 
-    return Playlist::fromSimpleXMLElement($xml);
+    return LastFM_Playlist::fromSimpleXMLElement($xml);
   }
 
   /** Create a Playlist object from a SimpleXMLElement.
    *
    * @param SimpleXMLElement  $xml  A SimpleXMLElement object.
-   * @return  Playlist          A Playlist object.
+   * @return  LastFM_Playlist          A Playlist object.
    *
    * @static
    * @access  public
@@ -290,20 +290,20 @@ class Playlist {
     $tracks = array();
     if (isset($xml->trackList)) {
       foreach($xml->trackList->children() as $track){
-        $tracks[] = Track::fromSimpleXMLElement($track);
+        $tracks[] = LastFM_Track::fromSimpleXMLElement($track);
       }
     }
     
-    return new Playlist(
-      Util::toInteger($xml->id),
-      Util::toString($xml->title),
-      Util::toString($xml->description),
-      Util::toTimestamp($xml->date),
-      Util::toInteger($xml->size),
-      Util::toInteger($xml->duration),
-      Util::toInteger($xml->streamable),
-      Util::toString($xml->creator),
-      Util::toString($xml->url),
+    return new LastFM_Playlist(
+      LastFM_Util::toInteger($xml->id),
+      LastFM_Util::toString($xml->title),
+      LastFM_Util::toString($xml->description),
+      LastFM_Util::toTimestamp($xml->date),
+      LastFM_Util::toInteger($xml->size),
+      LastFM_Util::toInteger($xml->duration),
+      LastFM_Util::toInteger($xml->streamable),
+      LastFM_Util::toString($xml->creator),
+      LastFM_Util::toString($xml->url),
       $tracks
     );
   }

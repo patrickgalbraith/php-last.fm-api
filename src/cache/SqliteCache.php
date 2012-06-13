@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-final class SqliteCache extends Cache {
+final class LastFM_Cache_SqliteCache extends LastFM_Cache {
 	/** The SQLite database handle.
 	 *
 	 * @var		string

@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-interface CachePolicy {
+interface LastFM_Cache_CachePolicy {
 	/** Returns the expiration time by interpreting last.fm API request parameters.
 	 *
 	 * @param	array	$params	An associative array of last.fm API request parameters.
@@ -16,5 +16,3 @@ interface CachePolicy {
 	 */
 	public function getExpirationTime($params);
 }
-
-

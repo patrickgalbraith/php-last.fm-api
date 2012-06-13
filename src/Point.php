@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Point {
+class LastFM_Point {
 	/** Latitude.
 	 *
 	 * @var float

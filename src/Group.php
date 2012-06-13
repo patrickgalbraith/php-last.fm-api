@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Group {
+class LastFM_Group {
 	/** Get a list of members for this group.
 	 *
 	 * @param	string	$group	The group name to fetch the members of. (Required)
@@ -17,21 +17,21 @@ class Group {
 	 * @throws	Error
 	 */
 	public static function getMembers($group){
-		$xml = CallerFactory::getDefaultCaller()->call('group.getMembers', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('group.getMembers', array(
 			'group' => $group
 		));
 
 		$users = array();
 
 		foreach($xml->children() as $user){
-			$users[] = User::fromSimpleXMLElement($user);
+			$users[] = LastFM_User::fromSimpleXMLElement($user);
 		}
 
-		$perPage = Util::toInteger($xml['perPage']);
+		$perPage = LastFM_Util::toInteger($xml['perPage']);
 
-		return new PaginatedResult(
-			Util::toInteger($xml['totalPages']) * $perPage,
-			Util::toInteger($xml['page']) * $perPage,
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($xml['totalPages']) * $perPage,
+			LastFM_Util::toInteger($xml['page']) * $perPage,
 			$perPage,
 			$users
 		);
@@ -49,7 +49,7 @@ class Group {
 	 * @throws	Error
 	 */
 	public static function getWeeklyAlbumChart($group, $from = null, $to = null){
-		$xml = CallerFactory::getDefaultCaller()->call('group.getWeeklyAlbumChart', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('group.getWeeklyAlbumChart', array(
 			'group' => $group,
 			'from'  => $from,
 			'to'    => $to
@@ -58,7 +58,7 @@ class Group {
 		$albums = array();
 
 		foreach($xml->children() as $album){
-			$albums[] = Album::fromSimpleXMLElement($album);
+			$albums[] = LastFM_Album::fromSimpleXMLElement($album);
 		}
 
 		return $albums;
@@ -76,7 +76,7 @@ class Group {
 	 * @throws	Error
 	 */
 	public static function getWeeklyArtistChart($group, $from = null, $to = null){
-		$xml = CallerFactory::getDefaultCaller()->call('group.getWeeklyArtistChart', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('group.getWeeklyArtistChart', array(
 			'group' => $group,
 			'from'  => $from,
 			'to'    => $to
@@ -85,7 +85,7 @@ class Group {
 		$artists = array();
 
 		foreach($xml->children() as $artist){
-			$artists[] = Artist::fromSimpleXMLElement($artist);
+			$artists[] = LastFM_Artist::fromSimpleXMLElement($artist);
 		}
 
 		return $artists;
@@ -101,7 +101,7 @@ class Group {
 	 * @throws	Error
 	 */
 	public static function getWeeklyChartList($group){
-		$xml = CallerFactory::getDefaultCaller()->call('group.getWeeklyChartList', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('group.getWeeklyChartList', array(
 			'group' => $group
 		));
 
@@ -109,8 +109,8 @@ class Group {
 
 		foreach($xml->children() as $chart){
 			$chartList[] = array(
-				'from' => Util::toInteger($chart['from']),
-				'to'   => Util::toInteger($chart['to']),
+				'from' => LastFM_Util::toInteger($chart['from']),
+				'to'   => LastFM_Util::toInteger($chart['to']),
 			);
 		}
 
@@ -129,7 +129,7 @@ class Group {
 	 * @throws	Error
 	 */
 	public static function getWeeklyTrackChart($group, $from = null, $to = null){
-		$xml = CallerFactory::getDefaultCaller()->call('group.getWeeklyTrackChart', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('group.getWeeklyTrackChart', array(
 			'group' => $group,
 			'from'  => $from,
 			'to'    => $to
@@ -138,11 +138,9 @@ class Group {
 		$tracks = array();
 
 		foreach($xml->children() as $track){
-			$tracks[] = Track::fromSimpleXMLElement($track);
+			$tracks[] = LastFM_Track::fromSimpleXMLElement($track);
 		}
 
 		return $tracks;
 	}
 }
-
-

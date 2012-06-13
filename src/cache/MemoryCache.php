@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-final class MemoryCache extends Cache {
+final class LastFM_Cache_MemoryCache extends LastFM_Cache {
 	/** The array where the cache data is stored.
 	 *
 	 * @var		array

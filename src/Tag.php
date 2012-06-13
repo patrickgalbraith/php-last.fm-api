@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Tag {
+class LastFM_Tag {
 	/** The tags name.
 	 *
 	 * @var string
@@ -79,14 +79,14 @@ class Tag {
 	 * @throws	Error
 	 */
 	public static function getSimilar($tag){
-		$xml = CallerFactory::getDefaultCaller()->call('tag.getSimilar', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('tag.getSimilar', array(
 			'tag' => $tag
 		));
 
 		$tags = array();
 
 		foreach($xml->children() as $tag){
-			$tags[] = Tag::fromSimpleXMLElement($tag);
+			$tags[] = LastFM_Tag::fromSimpleXMLElement($tag);
 		}
 
 		return $tags;
@@ -102,14 +102,14 @@ class Tag {
 	 * @throws	Error
 	 */
 	public static function getTopAlbums($tag){
-		$xml = CallerFactory::getDefaultCaller()->call('tag.getTopAlbums', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('tag.getTopAlbums', array(
 			'tag' => $tag
 		));
 
 		$albums = array();
 
 		foreach($xml->children() as $album){
-			$albums[] = Album::fromSimpleXMLElement($album);
+			$albums[] = LastFM_Album::fromSimpleXMLElement($album);
 		}
 
 		return $albums;
@@ -125,14 +125,14 @@ class Tag {
 	 * @throws	Error
 	 */
 	public static function getTopArtists($tag){
-		$xml = CallerFactory::getDefaultCaller()->call('tag.getTopArtists', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('tag.getTopArtists', array(
 			'tag' => $tag
 		));
 
 		$artists = array();
 
 		foreach($xml->children() as $artist){
-			$artists[] = Artist::fromSimpleXMLElement($artist);
+			$artists[] = LastFM_Artist::fromSimpleXMLElement($artist);
 		}
 
 		return $artists;
@@ -147,12 +147,12 @@ class Tag {
 	 * @throws	Error
 	 */
 	public static function getTopTags(){
-		$xml = CallerFactory::getDefaultCaller()->call('tag.getTopTags');
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('tag.getTopTags');
 
 		$tags = array();
 
 		foreach($xml->children() as $tag){
-			$tags[] = Tag::fromSimpleXMLElement($tag);
+			$tags[] = LastFM_Tag::fromSimpleXMLElement($tag);
 		}
 
 		return $tags;
@@ -168,14 +168,14 @@ class Tag {
 	 * @throws	Error
 	 */
 	public static function getTopTracks($tag){
-		$xml = CallerFactory::getDefaultCaller()->call('tag.getTopTracks', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('tag.getTopTracks', array(
 			'tag' => $tag
 		));
 
 		$tracks = array();
 
 		foreach($xml->children() as $track){
-			$tracks[] = Track::fromSimpleXMLElement($track);
+			$tracks[] = LastFM_Track::fromSimpleXMLElement($track);
 		}
 
 		return $tracks;
@@ -195,7 +195,7 @@ class Tag {
 	 */
 	public static function getWeeklyArtistChart($tag, $from = null, $to = null,
 												$limit = null){
-		$xml = CallerFactory::getDefaultCaller()->call('tag.getWeeklyArtistChart', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('tag.getWeeklyArtistChart', array(
 			'tag'   => $tag,
 			'from'  => $from,
 			'to'    => $to,
@@ -205,7 +205,7 @@ class Tag {
 		$artists = array();
 
 		foreach($xml->children() as $artist){
-			$artists[] = Artist::fromSimpleXMLElement($artist);
+			$artists[] = LastFM_Artist::fromSimpleXMLElement($artist);
 		}
 
 		return $artists;
@@ -221,7 +221,7 @@ class Tag {
 	 * @throws	Error
 	 */
 	public static function getWeeklyChartList($tag){
-		$xml = CallerFactory::getDefaultCaller()->call('tag.getWeeklyChartList', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('tag.getWeeklyChartList', array(
 			'tag' => $tag
 		));
 
@@ -229,8 +229,8 @@ class Tag {
 
 		foreach($xml->children() as $chart){
 			$chartList[] = array(
-				'from' => Util::toInteger($chart['from']),
-				'to'   => Util::toInteger($chart['to']),
+				'from' => LastFM_Util::toInteger($chart['from']),
+				'to'   => LastFM_Util::toInteger($chart['to']),
 			);
 		}
 
@@ -249,7 +249,7 @@ class Tag {
 	 * @throws	Error
 	 */
 	public static function search($tag, $limit = null, $page = null){
-		$xml = CallerFactory::getDefaultCaller()->call('tag.search', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('tag.search', array(
 			'tag'   => $tag,
 			'limit' => $limit,
 			'page'  => $page
@@ -258,7 +258,7 @@ class Tag {
 		$tags = array();
 
 		foreach($xml->tagmatches->children() as $tag){
-			$tags[] = Tag::fromSimpleXMLElement($tag);
+			$tags[] = LastFM_Tag::fromSimpleXMLElement($tag);
 		}
 
 		return $tags;
@@ -274,10 +274,10 @@ class Tag {
 	 * @internal
 	 */
 	public static function fromSimpleXMLElement(SimpleXMLElement $xml){
-		return new Tag(
-			Util::toString($xml->name),
-			Util::toInteger($xml->count),
-			Util::toString($xml->url)
+		return new LastFM_Tag(
+			LastFM_Util::toString($xml->name),
+			LastFM_Util::toInteger($xml->count),
+			LastFM_Util::toString($xml->url)
 		);
 	}
 }

@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class PaginatedResult implements Iterator, Countable {
+class LastFM_PaginatedResult implements Iterator, Countable {
 	/** The number of total results.
 	 *
 	 * @var integer

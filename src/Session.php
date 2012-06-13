@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Session {
+class LastFM_Session {
 	/** The session username.
 	 *
 	 * @var string
@@ -79,10 +79,10 @@ class Session {
 	 * @internal
 	 */
 	public static function fromSimpleXMLElement(SimpleXMLElement $xml){
-		return new Session(
-			Util::toString($xml->name),
-			Util::toString($xml->key),
-			Util::toBoolean($xml->subscriber)
+		return new LastFM_Session(
+			LastFM_Util::toString($xml->name),
+			LastFM_Util::toString($xml->key),
+			LastFM_Util::toBoolean($xml->subscriber)
 		);
 	}
 }

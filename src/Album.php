@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Album extends Media {
+class LastFM_Album extends LastFM_Media {
 	/** Artist of this album.
 	 *
 	 * @var		mixed
@@ -34,6 +34,13 @@ class Album extends Media {
 	 * @access	private
 	 */
 	private $topTags;
+    
+    /** The albums wiki information.
+	 *
+	 * @var string
+	 * @access	private
+	 */
+	private $wiki;
 
 	/** Create an album object.
 	 *
@@ -50,22 +57,21 @@ class Album extends Media {
 	 *
 	 * @access	public
 	 */
-	public function __construct($artist, $name, $id, $mbid, $url, array $images,
-								$listeners, $playCount, $releaseDate,
-								array $topTags){
+	public function __construct($artist, $name, $id, $mbid, $url, array $images, $listeners, $playCount, $releaseDate, array $topTags, $wiki){
 		parent::__construct($name, $mbid, $url, $images, $listeners, $playCount);
-
+        
 		$this->artist      = $artist;
 		$this->id          = $id;
 		$this->releaseDate = $releaseDate;
 		$this->topTags     = $topTags;
+        $this->wiki        = $wiki;
 	}
 
 	/** Returns the artist of this album.
 	 *
 	 * @return	mixed	An {@link de.felixbruns.lastfm.Artist Artist} object or the artists name.
 	 * @access	public
-	 * @see		Artist
+	 * @see		LastFM_Artist
 	 */
 	public function getArtist(){
 		return $this->artist;
@@ -82,21 +88,26 @@ class Album extends Media {
 
 	/** Returns the release date of this album.
 	 *
-	 * @return	integer	Release date of this album as a unix timestamp.
+	 * @return	integer	Release date of this album.
 	 * @access	public
 	 */
 	public function getReleaseDate(){
-		return $this->releasedate;
+		return $this->releaseDate;
 	}
 
 	/** Returns the top tags of this album.
 	 *
 	 * @return	array	An array of {@link de.felixbruns.lastfm.Tag Tag} objects.
 	 * @access	public
-	 * @see		Tag
+	 * @see		LastFM_Tag
 	 */
 	public function getTopTags(){
 		return $this->topTags;
+	}
+    
+    
+    public function getWiki(){
+		return $this->wiki;
 	}
 
 	/** Tag an album using a list of user supplied tags.
@@ -111,8 +122,8 @@ class Album extends Media {
 	 * @throws	Error
 	 */
 	public static function addTags($artist, $album, array $tags,
-								   Session $session){
-		CallerFactory::getDefaultCaller()->signedCall('album.addTags', array(
+								   LastFM_Session $session){
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('album.addTags', array(
 			'artist' => $artist,
 			'album'  => $album,
 			'tags'   => implode(',', $tags)
@@ -132,14 +143,14 @@ class Album extends Media {
 	 * @throws	Error
 	 */
 	public static function getInfo($artist, $album, $mbid = null, $lang = null){
-		$xml = CallerFactory::getDefaultCaller()->call('album.getInfo', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('album.getInfo', array(
 			'artist' => $artist,
 			'album'  => $album,
 			'mbid'   => $mbid,
 			'lang'   => $lang
 		));
 
-		return Album::fromSimpleXMLElement($xml);
+		return LastFM_Album::fromSimpleXMLElement($xml);
 	}
 
 	/** Get the tags applied by an individual user to an album on last.fm.
@@ -148,14 +159,14 @@ class Album extends Media {
 	 * @param	string	$album		The album name in question. (Required)
 	 * @param	Session	$session	A session obtained by {@link de.felixbruns.lastfm.Auth#getSession Auth::getSession} or {@link de.felixbruns.lastfm.Auth#getMobileSession Auth::getMobileSession}. (Required)
 	 * @return	array				An array of Tag objects.
-	 * @see		Tag
+	 * @see		LastFM_Tag
 	 *
 	 * @static
 	 * @access	public
 	 * @throws	Error
 	 */
-	public static function getTags($artist, $album, Session $session){
-		$xml = CallerFactory::getDefaultCaller()->signedCall('album.getTags', array(
+	public static function getTags($artist, $album, LastFM_Session $session){
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('album.getTags', array(
 			'artist' => $artist,
 			'album'  => $album
 		), $session);
@@ -163,7 +174,7 @@ class Album extends Media {
 		$tags = array();
 
 		foreach($xml->children() as $tag){
-			$tags[] = Tag::fromSimpleXMLElement($tag);
+			$tags[] = LastFM_Tag::fromSimpleXMLElement($tag);
 		}
 
 		return $tags;
@@ -180,8 +191,8 @@ class Album extends Media {
 	 * @access	public
 	 * @throws	Error
 	 */
-	public static function removeTag($artist, $album, $tag, Session $session){
-		CallerFactory::getDefaultCaller()->signedCall('album.removeTag', array(
+	public static function removeTag($artist, $album, $tag, LastFM_Session $session){
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('album.removeTag', array(
 			'artist' => $artist,
 			'album'  => $album,
 			'tag'    => $tag
@@ -194,14 +205,14 @@ class Album extends Media {
 	 * @param	integer	$limit	Limit the number of albums returned at one time. Default (maximum) is 30. (Optional)
 	 * @param	integer	$page	Scan into the results by specifying a page number. Defaults to first page. (Optional)
 	 * @return	PaginatedResult	A PaginatedResult object.
-	 * @see		PaginatedResult
+	 * @see		LastFM_PaginatedResult
 	 *
 	 * @static
 	 * @access	public
 	 * @throws	Error
 	 */
 	public static function search($album, $limit = null, $page = null){
-		$xml = CallerFactory::getDefaultCaller()->call('album.search', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('album.search', array(
 			'album' => $album,
 			'limit' => $limit,
 			'page'  => $page
@@ -210,15 +221,15 @@ class Album extends Media {
 		$albums = array();
 
 		foreach($xml->albummatches->children() as $album){
-			$artists[] = Album::fromSimpleXMLElement($album);
+			$artists[] = LastFM_Album::fromSimpleXMLElement($album);
 		}
 
 		$opensearch = $xml->children('http://a9.com/-/spec/opensearch/1.1/');
 
-		return new PaginatedResult(
-			Util::toInteger($opensearch->totalResults),
-			Util::toInteger($opensearch->startIndex),
-			Util::toInteger($opensearch->itemsPerPage),
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($opensearch->totalResults),
+			LastFM_Util::toInteger($opensearch->startIndex),
+			LastFM_Util::toInteger($opensearch->itemsPerPage),
 			$artists
 		);
 	}
@@ -228,19 +239,19 @@ class Album extends Media {
 	 * @param	string	$artist	The artist name in question. (Required)
 	 * @param	string	$album	The album name in question. (Required)
 	 * @return	Playlist		A Playlist object.
-	 * @see		Playlist
+	 * @see		LastFM_Playlist
 	 *
 	 * @static
 	 * @access	public
 	 * @throws	Error
 	 */
 	public static function getPlaylist($artist, $album){
-		$xml = CallerFactory::getDefaultCaller()->call('album.getPlayerMenu', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('album.getPlayerMenu', array(
 			'artist' => $artist,
 			'album'  => $album
 		));
 
-		return Playlist::fetch(Util::toString($xml->playlist->url), true, true);
+		return LastFM_Playlist::fetch(LastFM_Util::toString($xml->playlist->url), true, true);
 	}
 
 	/** Create an Album object from a SimpleXMLElement object.
@@ -259,55 +270,56 @@ class Album extends Media {
 		/* TODO: tagcount | library.getAlbums */
 
 		if($xml->mbid){
-			$mbid = Util::toString($xml->mbid);
+			$mbid = LastFM_Util::toString($xml->mbid);
 		}
 		else if($xml['mbid']){
-			$mbid = Util::toString($xml['mbid']);
+			$mbid = LastFM_Util::toString($xml['mbid']);
 		}
 		else{
 			$mbid = '';
 		}
 
 		foreach($xml->image as $image){
-			$images[Util::toImageType($image['size'])] = Util::toString($image);
+			$images[LastFM_Util::toImageType($image['size'])] = LastFM_Util::toString($image);
 		}
 
 		if($xml->toptags){
 			foreach($xml->toptags->children() as $tag){
-				$topTags[] = Tag::fromSimpleXMLElement($tag);
+				$topTags[] = LastFM_Tag::fromSimpleXMLElement($tag);
 			}
 		}
 
 		if($xml->artist->name && $xml->artist->mbid && $xml->artist->url){
-			$artist = new Artist(
-				Util::toString($xml->artist->name),
-				Util::toString($xml->artist->mbid),
-				Util::toString($xml->artist->url),
+			$artist = new LastFM_Artist(
+				LastFM_Util::toString($xml->artist->name),
+				LastFM_Util::toString($xml->artist->mbid),
+				LastFM_Util::toString($xml->artist->url),
 				array(), 0, 0, 0, array(), array(), '', 0.0
 			);
 		}
 		else if($xml->artist && $xml->artist['mbid']){
-			$artist = new Artist(
-				Util::toString($xml->artist),
-				Util::toString($xml->artist['mbid']),
+			$artist = new LastFM_Artist(
+				LastFM_Util::toString($xml->artist),
+				LastFM_Util::toString($xml->artist['mbid']),
 				'', array(), 0, 0, 0, array(), array(), '', 0.0
 			);
 		}
 		else{
-			$artist = Util::toString($xml->artist);
+			$artist = LastFM_Util::toString($xml->artist);
 		}
 
-		return new Album(
+		return new LastFM_Album(
 			$artist,
-			Util::toString($xml->name),
-			Util::toInteger($xml->id),
+			LastFM_Util::toString($xml->name),
+			LastFM_Util::toInteger($xml->id),
 			$mbid,
-			Util::toString($xml->url),
+			LastFM_Util::toString($xml->url),
 			$images,
-			Util::toInteger($xml->listeners),
-			Util::toInteger($xml->playcount),
-			Util::toTimestamp($xml->releasedate),
-			$topTags
+			LastFM_Util::toInteger($xml->listeners),
+			LastFM_Util::toInteger($xml->playcount),
+			LastFM_Util::toTimestamp($xml->releasedate),
+			$topTags,
+            $xml->wiki
 		);
 	}
 }

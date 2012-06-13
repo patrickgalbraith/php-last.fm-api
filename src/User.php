@@ -6,7 +6,14 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class User extends Media {
+class LastFM_User extends LastFM_Media {
+	/** The users real name.
+	 *
+	 * @var string
+	 * @access	private
+	 */
+	private $realName;
+
 	/** The users language.
 	 *
 	 * @var string
@@ -51,7 +58,7 @@ class User extends Media {
 
 	/** The last track the user played.
 	 *
-	 * @var Track
+	 * @var LastFM_Track
 	 * @access	private
 	 */
 	private $lastTrack;
@@ -84,6 +91,7 @@ class User extends Media {
 	 *
 	 * @param string	$name		Username.
 	 * @param string	$url		Last.fm URL of this user.
+	 * @param string	$realName	Real name of this user.
 	 * @param string	$language	Language of this user.
 	 * @param string	$country	Country of this user.
 	 * @param integer	$age		Age of this user.
@@ -95,14 +103,16 @@ class User extends Media {
 	 * @param Track		$lastTrack	Last track the user played.
 	 * @param float		$match		Similarity value.
 	 * @param integer	$weight		Still no idea.
+	 * @param integer	$registered	Registration date of this user.
 	 *
 	 * @access	public
 	 */
-	public function __construct($name, $url, $language, $country, $age, $gender,
+	public function __construct($name, $realName, $url, $language, $country, $age, $gender,
 								$subscriber, $playCount, $playlists,
-								array $images, $lastTrack, $match, $weight){
+								array $images, $lastTrack, $match, $weight, $registered){
 		parent::__construct($name, '', $url, $images, 0, $playCount);
 
+        $this->realName   = $realName;
 		$this->language   = $language;
 		$this->country    = $country;
 		$this->age        = $age;
@@ -112,6 +122,16 @@ class User extends Media {
 		$this->lastTrack  = $lastTrack;
 		$this->match      = $match;
 		$this->weight     = $weight;
+		$this->registered = $registered;
+	}
+
+	/** Returns the users real name.
+	 *
+	 * @return	string	The users real name.
+	 * @access	public
+	 */
+	public function getRealName(){
+		return $this->realName;
 	}
 
 	/** Returns the users language.
@@ -195,6 +215,15 @@ class User extends Media {
 		return $this->weight;
 	}
 
+	/** Returns the registration date of this user.
+	 *
+	 * @return	integer	Registration date of this user.
+	 * @access	public
+	 */
+	public function getRegistered(){
+		return $this->registered;
+	}
+
 	/** Get a list of upcoming events that this user is attending. Easily integratable into calendars, using the iCal standard.
 	 *
 	 * @param	string	$user	The user to fetch the events for. (Required)
@@ -205,14 +234,14 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getEvents($user){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getEvents', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getEvents', array(
 			'user' => $user
 		));
 
 		$events = array();
 
 		foreach($xml->children() as $event){
-			$events[] = Event::fromSimpleXMLElement($event);
+			$events[] = LastFM_Event::fromSimpleXMLElement($event);
 		}
 
 		return $events;
@@ -230,7 +259,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getFriends($user, $recentTracks = null, $limit = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getFriends', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getFriends', array(
 			'user'         => $user,
 			'recenttracks' => $recenttracks,
 			'limit'        => $limit
@@ -239,7 +268,7 @@ class User extends Media {
 		$friends = array();
 
 		foreach($xml->children() as $friend){
-			$friends[] = User::fromSimpleXMLElement($friend);
+			$friends[] = LastFM_User::fromSimpleXMLElement($friend);
 		}
 
 		return $friends;
@@ -255,13 +284,13 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getInfo($session){
-		$xml = CallerFactory::getDefaultCaller()->signedCall('user.getInfo', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('user.getInfo', array(
 			'user'         => $user,
 			'recenttracks' => $recenttracks,
 			'limit'        => $limit
 		), $session);
 
-		return User::fromSimpleXMLElement($xml);
+		return LastFM_User::fromSimpleXMLElement($xml);
 	}
 
 	/** Get the last 50 tracks loved by a user.
@@ -274,14 +303,14 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getLovedTracks($user){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getLovedTracks', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getLovedTracks', array(
 			'user' => $user
 		));
 
 		$tracks = array();
 
 		foreach($xml->children() as $track){
-			$tracks[] = Track::fromSimpleXMLElement($track);
+			$tracks[] = LastFM_Track::fromSimpleXMLElement($track);
 		}
 
 		return $tracks;
@@ -298,7 +327,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getNeighbours($user, $limit = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getNeighbours', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getNeighbours', array(
 			'user'  => $user,
 			'limit' => $limit
 		));
@@ -306,7 +335,7 @@ class User extends Media {
 		$neighbours = array();
 
 		foreach($xml->children() as $neighbour){
-			$neighbours[] = User::fromSimpleXMLElement($neighbour);
+			$neighbours[] = LastFM_User::fromSimpleXMLElement($neighbour);
 		}
 
 		return $neighbours;
@@ -318,14 +347,14 @@ class User extends Media {
 	 * @param	integer	$limit	The number of events to return per page. (Optional)
 	 * @param	integer	$page	The page number to scan to. (Optional)
 	 * @return	PaginatedResult	A PaginatedResult object.
-	 * @see		PaginatedResult
+	 * @see		LastFM_PaginatedResult
 	 *
 	 * @static
 	 * @access	public
 	 * @throws	Error
 	 */
 	public static function getPastEvents($user, $limit = null, $page = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getPastEvents', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getPastEvents', array(
 			'user'  => $user,
 			'limit' => $limit,
 			'page'  => $page
@@ -334,14 +363,14 @@ class User extends Media {
 		$events = array();
 
 		foreach($xml->children() as $event){
-			$events[] = Event::fromSimpleXMLElement($event);
+			$events[] = LastFM_Event::fromSimpleXMLElement($event);
 		}
 
-		$perPage = Util::toInteger($xml['perPage']);
+		$perPage = LastFM_Util::toInteger($xml['perPage']);
 
-		return new PaginatedResult(
-			Util::toInteger($xml['total']),
-			(Util::toInteger($xml['page']) - 1) * $perPage,
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($xml['total']),
+			(LastFM_Util::toInteger($xml['page']) - 1) * $perPage,
 			$perPage,
 			$events
 		);
@@ -357,14 +386,14 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getPlaylists($user){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getPlaylists', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getPlaylists', array(
 			'user' => $user
 		));
 
 		$playlists = array();
 
 		foreach($xml->children() as $playlist){
-			$playlists[] = Playlist::fromSimpleXMLElement($playlist);
+			$playlists[] = LastFM_Playlist::fromSimpleXMLElement($playlist);
 		}
 
 		return $playlists;
@@ -381,7 +410,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getRecentTracks($user, $limit = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getRecentTracks', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getRecentTracks', array(
 			'user'  => $user,
 			'limit' => $limit
 		));
@@ -389,7 +418,7 @@ class User extends Media {
 		$tracks = array();
 
 		foreach($xml->children() as $track){
-			$tracks[] = Track::fromSimpleXMLElement($track);
+			$tracks[] = LastFM_Track::fromSimpleXMLElement($track);
 		}
 
 		return $tracks;
@@ -406,7 +435,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getRecommendedArtists($limit = null, $page = null, $session){
-		$xml = CallerFactory::getDefaultCaller()->signedCall('user.getRecommendedArtists', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('user.getRecommendedArtists', array(
 			'limit' => $limit,
 			'page'  => $page
 		), $session);
@@ -414,14 +443,14 @@ class User extends Media {
 		$artists = array();
 
 		foreach($xml->children() as $artist){
-			$artists[] = Artist::fromSimpleXMLElement($artist);
+			$artists[] = LastFM_Artist::fromSimpleXMLElement($artist);
 		}
 
-		$perPage = Util::toInteger($xml['perPage']);
+		$perPage = LastFM_Util::toInteger($xml['perPage']);
 
-		return new PaginatedResult(
-			Util::toInteger($xml['total']),
-			(Util::toInteger($xml['page']) - 1) * $perPage,
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($xml['total']),
+			(LastFM_Util::toInteger($xml['page']) - 1) * $perPage,
 			$perPage,
 			$artists
 		);
@@ -438,7 +467,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getRecommendedEvents($limit = null, $page = null, $session){
-		$xml = CallerFactory::getDefaultCaller()->signedCall('user.getRecommendedEvents', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('user.getRecommendedEvents', array(
 			'limit' => $limit,
 			'page'  => $page
 		), $session);
@@ -446,14 +475,14 @@ class User extends Media {
 		$events = array();
 
 		foreach($xml->children() as $event){
-			$events[] = Event::fromSimpleXMLElement($event);
+			$events[] = LastFM_Event::fromSimpleXMLElement($event);
 		}
 
-		$perPage = Util::toInteger($xml['perPage']);
+		$perPage = LastFM_Util::toInteger($xml['perPage']);
 
-		return new PaginatedResult(
-			Util::toInteger($xml['total']),
-			(Util::toInteger($xml['page']) - 1) * $perPage,
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($xml['total']),
+			(LastFM_Util::toInteger($xml['page']) - 1) * $perPage,
 			$perPage,
 			$events
 		);
@@ -469,14 +498,14 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getShouts($user){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getShouts', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getShouts', array(
 			'user' => $user
 		));
 
 		$shouts = array();
 
 		foreach($xml->children() as $shout){
-			$shouts[] = Shout::fromSimpleXMLElement($shout);
+			$shouts[] = LastFM_Shout::fromSimpleXMLElement($shout);
 		}
 
 		return $shouts;
@@ -493,7 +522,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getTopAlbums($user, $period = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getTopAlbums', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getTopAlbums', array(
 			'user'   => $user,
 			'period' => $period
 		));
@@ -501,7 +530,7 @@ class User extends Media {
 		$albums = array();
 
 		foreach($xml->children() as $album){
-			$albums[] = Album::fromSimpleXMLElement($album);
+			$albums[] = LastFM_Album::fromSimpleXMLElement($album);
 		}
 
 		return $albums;
@@ -518,7 +547,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getTopArtists($user, $period = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getTopArtists', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getTopArtists', array(
 			'user'   => $user,
 			'period' => $period
 		));
@@ -526,7 +555,7 @@ class User extends Media {
 		$artists = array();
 
 		foreach($xml->children() as $artist){
-			$artists[] = Artist::fromSimpleXMLElement($artist);
+			$artists[] = LastFM_Artist::fromSimpleXMLElement($artist);
 		}
 
 		return $artists;
@@ -543,7 +572,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getTopTags($user, $limit = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getTopTags', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getTopTags', array(
 			'user'  => $user,
 			'limit' => $limit
 		));
@@ -551,7 +580,7 @@ class User extends Media {
 		$tags = array();
 
 		foreach($xml->children() as $tag){
-			$tags[] = Tag::fromSimpleXMLElement($tag);
+			$tags[] = LastFM_Tag::fromSimpleXMLElement($tag);
 		}
 
 		return $tags;
@@ -568,7 +597,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getTopTracks($user, $period = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getTopTracks', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getTopTracks', array(
 			'user'   => $user,
 			'period' => $period
 		));
@@ -576,7 +605,7 @@ class User extends Media {
 		$tracks = array();
 
 		foreach($xml->children() as $track){
-			$tracks[] = Track::fromSimpleXMLElement($track);
+			$tracks[] = LastFM_Track::fromSimpleXMLElement($track);
 		}
 
 		return $tracks;
@@ -594,7 +623,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getWeeklyAlbumChart($user, $from = null, $to = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getWeeklyAlbumChart', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getWeeklyAlbumChart', array(
 			'user' => $user,
 			'from' => $from,
 			'to'   => $to
@@ -603,7 +632,7 @@ class User extends Media {
 		$albums = array();
 
 		foreach($xml->children() as $album){
-			$albums[] = Album::fromSimpleXMLElement($album);
+			$albums[] = LastFM_Album::fromSimpleXMLElement($album);
 		}
 
 		return $albums;
@@ -621,7 +650,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getWeeklyArtistChart($user, $from = null, $to = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getWeeklyArtistChart', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getWeeklyArtistChart', array(
 			'user' => $user,
 			'from' => $from,
 			'to'   => $to
@@ -630,7 +659,7 @@ class User extends Media {
 		$artists = array();
 
 		foreach($xml->children() as $artist){
-			$artists[] = Artist::fromSimpleXMLElement($artist);
+			$artists[] = LastFM_Artist::fromSimpleXMLElement($artist);
 		}
 
 		return $artists;
@@ -646,7 +675,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getWeeklyChartList($user, $from = null, $to = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getWeeklyChartList', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getWeeklyChartList', array(
 			'user' => $user
 		));
 
@@ -654,8 +683,8 @@ class User extends Media {
 
 		foreach($xml->children() as $chart){
 			$chartList[] = array(
-				'from' => Util::toInteger($chart['from']),
-				'to'   => Util::toInteger($chart['to']),
+				'from' => LastFM_Util::toInteger($chart['from']),
+				'to'   => LastFM_Util::toInteger($chart['to']),
 			);
 		}
 
@@ -674,7 +703,7 @@ class User extends Media {
 	 * @throws	Error
 	 */
 	public static function getWeeklyTrackChart($user, $from = null, $to = null){
-		$xml = CallerFactory::getDefaultCaller()->call('user.getWeeklyTrackChart', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('user.getWeeklyTrackChart', array(
 			'user' => $user,
 			'from' => $from,
 			'to'   => $to
@@ -683,7 +712,7 @@ class User extends Media {
 		$tracks = array();
 
 		foreach($xml->children() as $track){
-			$tracks[] = Track::fromSimpleXMLElement($track);
+			$tracks[] = LastFM_Track::fromSimpleXMLElement($track);
 		}
 
 		return $tracks;
@@ -702,24 +731,26 @@ class User extends Media {
 		$images = array();
 
 		foreach($xml->image as $image){
-			$images[Util::toImageType($image['size'])] = Util::toString($image);
+			$images[LastFM_Util::toImageType($image['size'])] = LastFM_Util::toString($image);
 		}
 
-		return new User(
-			Util::toString($xml->name),
-			Util::toString($xml->url),
-			Util::toString($xml->lang),
-			Util::toString($xml->country),
-			Util::toInteger($xml->age),
-			Util::toString($xml->gender),
-			Util::toInteger($xml->subscriber),
-			Util::toInteger($xml->playcount),
-			Util::toInteger($xml->playlists),
+		return new LastFM_User(
+			LastFM_Util::toString($xml->name),
+			LastFM_Util::toString($xml->realname),
+			LastFM_Util::toString($xml->url),
+			LastFM_Util::toString($xml->lang),
+			LastFM_Util::toString($xml->country),
+			LastFM_Util::toInteger($xml->age),
+			LastFM_Util::toString($xml->gender),
+			LastFM_Util::toInteger($xml->subscriber),
+			LastFM_Util::toInteger($xml->playcount),
+			LastFM_Util::toInteger($xml->playlists),
 			$images,
 			($xml->recenttrack)?
-				Track::fromSimpleXMLElement($xml->recenttrack):null,
-			Util::toFloat($xml->match),
-			Util::toInteger($xml->weight)
+				LastFM_Track::fromSimpleXMLElement($xml->recenttrack):null,
+			LastFM_Util::toFloat($xml->match),
+			LastFM_Util::toInteger($xml->weight),
+			LastFM_Util::toInteger($xml->registered['unixtime'])
 		);
 	}
 }

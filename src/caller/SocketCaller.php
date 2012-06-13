@@ -6,10 +6,10 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-final class SocketCaller extends Caller {
+final class LastFM_Caller_SocketCaller extends LastFM_Caller {
 	/** A SocketCaller instance.
 	 *
-	 * @var SocketCaller
+	 * @var LastFM_Caller_SocketCaller
 	 * @access	protected
 	 */
 	private static $instance;
@@ -21,14 +21,6 @@ final class SocketCaller extends Caller {
 	 */
 	private $headers;
 
-	/** Private constructor.
-	 *
-	 * @access	private
-	 */
-	private function __construct(){
-		$this->cache = new DiskCache();
-	}
-
 	/** Get a Caller instance.
 	 *
 	 * @return	Caller	A Caller instance.
@@ -37,7 +29,7 @@ final class SocketCaller extends Caller {
 	 */
 	public static function getInstance(){
 		if(!is_object(self::$instance)){
-			self::$instance = new SocketCaller();
+			self::$instance = new LastFM_Caller_SocketCaller();
 		}
 
 		return self::$instance;
@@ -54,7 +46,7 @@ final class SocketCaller extends Caller {
 	 */
 	protected function internalCall($params, $requestMethod = 'GET'){
 		/* Create caching hash. */
-		$hash = Cache::createHash($params);
+		$hash = LastFM_Cache::createHash($params);
 
 		/* Check if response is cached. */
 		if($this->cache != null &&
@@ -133,15 +125,15 @@ final class SocketCaller extends Caller {
 		$response = new SimpleXMLElement($response);
 
 		/* Return response or throw an error. */
-		if(Util::toString($response['status']) === 'ok'){
+		if(LastFM_Util::toString($response['status']) === 'ok'){
 			if($response->children()->{0}){
 				return $response->children()->{0};
 			}
 		}
 		else{
-			throw new Error(
-				Util::toString($response->error),
-				Util::toInteger($response->error['code'])
+			throw new LastFM_Error(
+				LastFM_Util::toString($response->error),
+				LastFM_Util::toInteger($response->error['code'])
 			);
 		}
 	}

@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Track extends Media {
+class LastFM_Track extends LastFM_Media {
 	/** The artist of this track.
 	 *
 	 * @var mixed
@@ -124,6 +124,10 @@ class Track extends Media {
 	public function getArtist(){
 		return $this->artist;
 	}
+    
+    public function setArtist($artist){
+		$this->artist = $artist;
+	}
 
 	/** Returns the album of this track.
 	 *
@@ -132,6 +136,10 @@ class Track extends Media {
 	 */
 	public function getAlbum(){
 		return $this->album;
+	}
+    
+    public function setAlbum($album){
+		$this->album = $album;
 	}
 
 	/** Returns the duration of this track.
@@ -219,7 +227,7 @@ class Track extends Media {
 	 * @throws	Error
 	 */
 	public static function addTags($artist, $track, array $tags, $session){
-		CallerFactory::getDefaultCaller()->signedCall('track.addTags', array(
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('track.addTags', array(
 			'artist' => $artist,
 			'track'  => $track,
 			'tags'   => implode(',', $tags)
@@ -237,7 +245,7 @@ class Track extends Media {
 	 * @throws	Error
 	 */
 	public static function ban($artist, $track, $session){
-		CallerFactory::getDefaultCaller()->signedCall('track.ban', array(
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('track.ban', array(
 			'artist' => $artist,
 			'track'  => $track
 		), $session, 'POST');
@@ -255,13 +263,13 @@ class Track extends Media {
 	 * @throws	Error
 	 */
 	public static function getInfo($artist, $track, $mbid = null){
-		$xml = CallerFactory::getDefaultCaller()->call('track.getInfo', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('track.getInfo', array(
 			'artist' => $artist,
 			'track'  => $track,
 			'mbid'   => $mbid
 		));
 
-		return Track::fromSimpleXMLElement($xml);
+		return LastFM_Track::fromSimpleXMLElement($xml);
 	}
 
 	/** Get the similar tracks for this track on last.fm, based on listening data.
@@ -275,17 +283,19 @@ class Track extends Media {
 	 * @access	public
 	 * @throws	Error
 	 */
-	public static function getSimilar($artist, $track, $mbid = null){
-		$xml = CallerFactory::getDefaultCaller()->call('track.getSimilar', array(
+	public static function getSimilar($artist, $track, $mbid = null, $autocorrect = 0, $limit = 50){
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('track.getSimilar', array(
 			'artist' => $artist,
 			'track'  => $track,
-			'mbid'   => $mbid
+			'mbid'   => $mbid,
+            'autocorrect' => $autocorrect,
+            'limit'   => $limit
 		));
 
 		$tracks = array();
 
 		foreach($xml->children() as $track){
-			$tracks[] = Track::fromSimpleXMLElement($track);
+			$tracks[] = LastFM_Track::fromSimpleXMLElement($track);
 		}
 
 		return $tracks;
@@ -303,7 +313,7 @@ class Track extends Media {
 	 * @throws	Error
 	 */
 	public static function getTags($artist, $track, $session){
-		$xml = CallerFactory::getDefaultCaller()->signedCall('track.getTags', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('track.getTags', array(
 			'artist'  => $artist,
 			'track'   => $track
 		), $session);
@@ -311,7 +321,7 @@ class Track extends Media {
 		$tags = array();
 
 		foreach($xml->children() as $tag){
-			$tags[] = Tag::fromSimpleXMLElement($tag);
+			$tags[] = LastFM_Tag::fromSimpleXMLElement($tag);
 		}
 
 		return $tags;
@@ -329,7 +339,7 @@ class Track extends Media {
 	 * @throws	Error
 	 */
 	public static function getTopFans($artist, $track, $mbid = null){
-		$xml = CallerFactory::getDefaultCaller()->call('track.getTopFans', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('track.getTopFans', array(
 			'artist' => $artist,
 			'track'  => $track,
 			'mbid'   => $mbid
@@ -338,7 +348,7 @@ class Track extends Media {
 		$users = array();
 
 		foreach($xml->children() as $user){
-			$users[] = User::fromSimpleXMLElement($user);
+			$users[] = LastFM_User::fromSimpleXMLElement($user);
 		}
 
 		return $users;
@@ -356,7 +366,7 @@ class Track extends Media {
 	 * @throws	Error
 	 */
 	public static function getTopTags($artist, $track, $mbid = null){
-		$xml = CallerFactory::getDefaultCaller()->call('track.getTopTags', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('track.getTopTags', array(
 			'artist' => $artist,
 			'track'  => $track,
 			'mbid'   => $mbid
@@ -365,7 +375,7 @@ class Track extends Media {
 		$tags = array();
 
 		foreach($xml->children() as $tag){
-			$tags[] = Tag::fromSimpleXMLElement($tag);
+			$tags[] = LastFM_Tag::fromSimpleXMLElement($tag);
 		}
 
 		return $tags;
@@ -382,7 +392,7 @@ class Track extends Media {
 	 * @throws	Error
 	 */
 	public static function love($artist, $track, $session){
-		$xml = CallerFactory::getDefaultCaller()->signedCall('track.love', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('track.love', array(
 			'artist' => $artist,
 			'track'  => $track
 		), $session, 'POST');
@@ -402,7 +412,7 @@ class Track extends Media {
 	 * @throws	Error
 	 */
 	public static function removeTag($artist, $track, $tag, $session){
-		CallerFactory::getDefaultCaller()->signedCall('track.removeTag', array(
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('track.removeTag', array(
 			'artist' => $artist,
 			'track'  => $track,
 			'tag'    => $tag
@@ -422,7 +432,7 @@ class Track extends Media {
 	 * @throws	Error
 	 */
 	public static function search($track, $artist = null, $limit = null, $page = null){
-		$xml = CallerFactory::getDefaultCaller()->call('track.search', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('track.search', array(
 			'artist' => $artist,
 			'track'  => $track,
 			'limit'  => $limit,
@@ -432,15 +442,15 @@ class Track extends Media {
 		$tracks = array();
 
 		foreach($xml->trackmatches->children() as $track){
-			$tracks[] = Track::fromSimpleXMLElement($track);
+			$tracks[] = LastFM_Track::fromSimpleXMLElement($track);
 		}
 
 		$opensearch = $xml->children('http://a9.com/-/spec/opensearch/1.1/');
 
-		return new PaginatedResult(
-			Util::toInteger($opensearch->totalResults),
-			Util::toInteger($opensearch->startIndex),
-			Util::toInteger($opensearch->itemsPerPage),
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($opensearch->totalResults),
+			LastFM_Util::toInteger($opensearch->startIndex),
+			LastFM_Util::toInteger($opensearch->itemsPerPage),
 			$tracks
 		);
 	}
@@ -459,7 +469,7 @@ class Track extends Media {
 	 */
 	public static function share($artist, $track, array $recipients,
 								 $message = null, $session){
-		CallerFactory::getDefaultCaller()->signedCall('track.share', array(
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('track.share', array(
 			'artist'    => $artist,
 			'track'     => $track,
 			'recipient' => implode(',', $recipients),
@@ -478,12 +488,12 @@ class Track extends Media {
 	 * @throws	Error
 	 */
 	public static function getPlaylist($artist, $track){
-		$xml = CallerFactory::getDefaultCaller()->call('track.getPlayerMenu', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('track.getPlayerMenu', array(
 			'artist' => $artist,
 			'track'  => $track
 		));
 
-		return Playlist::fetch(Util::toString($xml->playlist->url), true, true);
+		return LastFM_Playlist::fetch(LastFM_Util::toString($xml->playlist->url), true, true);
 	}
 
 	/** Create a Track object from a SimpleXMLElement.
@@ -501,44 +511,56 @@ class Track extends Media {
 
 		if(count($xml->image) > 1){
 			foreach($xml->image as $image){
-				$images[Util::toImageType($image['size'])] = Util::toString($image);
+				$images[LastFM_Util::toImageType($image['size'])] = LastFM_Util::toString($image);
 			}
 		}
 		else{
-			$images[Media::IMAGE_UNKNOWN] = Util::toString($xml->image);
+			$images[LastFM_Media::IMAGE_UNKNOWN] = LastFM_Util::toString($xml->image);
 		}
 
 		if($xml->toptags){
 			foreach($xml->toptags->children() as $tag){
-				$topTags[] = Tag::fromSimpleXMLElement($tag);
+				$topTags[] = LastFM_Tag::fromSimpleXMLElement($tag);
 			}
 		}
 
 		if($xml->artist){
 			if($xml->artist->name && $xml->artist->mbid && $xml->artist->url){
-				$artist = new Artist(
-					Util::toString($xml->artist->name),
-					Util::toString($xml->artist->mbid),
-					Util::toString($xml->artist->url),
+				$artist = new LastFM_Artist(
+					LastFM_Util::toString($xml->artist->name),
+					LastFM_Util::toString($xml->artist->mbid),
+					LastFM_Util::toString($xml->artist->url),
 					array(), 0, 0, 0, array(), array(), '', 0.0
 				);
 			}
 			else{
-				$artist = Util::toString($xml->artist);
+				$artist = LastFM_Util::toString($xml->artist);
 			}
 		}
 		else if($xml->creator){
-			$artist = Util::toString($xml->creator);
+			$artist = LastFM_Util::toString($xml->creator);
 		}
 		else{
 			$artist = '';
 		}
+        
+        
+        //$artist, $name, $id, $mbid, $url, array $images, $listeners, $playCount, $releaseDate, array $topTags, $wiki
+        if($xml->album) {
+            if($xml->album->artist && $xml->album->title) {
+                $album = new LastFM_Album($xml->album->artist, $xml->album->title, -1, $xml->album->mbid, $xml->album->url, array(), -1, -1, -1, array(), '');
+            } else {
+                $album = LastFM_Util::toString($xml->album);
+            }
+        } else {
+            $album = '';
+        }
 
 		if($xml->name){
-			$name = Util::toString($xml->name);
+			$name = LastFM_Util::toString($xml->name);
 		}
 		else if($xml->title){
-			$name = Util::toString($xml->title);
+			$name = LastFM_Util::toString($xml->title);
 		}
 		else{
 			$name = '';
@@ -546,23 +568,23 @@ class Track extends Media {
 
 		// TODO: <extension application="http://www.last.fm">
 
-		return new Track(
+		return new LastFM_Track(
 			$artist,
-			Util::toString($xml->album),
+			$album,
 			$name,
-			Util::toString($xml->mbid),
-			Util::toString($xml->url),
+			LastFM_Util::toString($xml->mbid),
+			LastFM_Util::toString($xml->url),
 			$images,
-			Util::toInteger($xml->listeners),
-			Util::toInteger($xml->playcount),
-			Util::toInteger($xml->duration),
+			LastFM_Util::toInteger($xml->listeners),
+			LastFM_Util::toInteger($xml->playcount),
+			LastFM_Util::toInteger($xml->duration),
 			$topTags,
-			Util::toInteger($xml->id),
-			Util::toString($xml->location),
-			Util::toBoolean($xml->streamable),
-			Util::toBoolean($xml->streamable['fulltrack']),
+			LastFM_Util::toInteger($xml->id),
+			LastFM_Util::toString($xml->location),
+			LastFM_Util::toBoolean($xml->streamable),
+			LastFM_Util::toBoolean($xml->streamable['fulltrack']),
 			$xml->wiki, // TODO: Wiki object
-			Util::toTimestamp($xml->date)
+			LastFM_Util::toTimestamp($xml->date)
 		);
 	}
 }

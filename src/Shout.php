@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Shout {
+class LastFM_Shout {
 	/** Shout author.
 	 *
 	 * @var string
@@ -79,10 +79,10 @@ class Shout {
 	 * @internal
 	 */
 	public static function fromSimpleXMLElement(SimpleXMLElement $xml){
-		return new Shout(
-			Util::toString($xml->auhtor),
-			Util::toTimestamp($xml->date),
-			Util::toString($xml->body)
+		return new LastFM_Shout(
+			LastFM_Util::toString($xml->auhtor),
+			LastFM_Util::toTimestamp($xml->date),
+			LastFM_Util::toString($xml->body)
 		);
 	}
 }

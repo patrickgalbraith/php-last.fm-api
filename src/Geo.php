@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Geo {
+class LastFM_Geo {
 	/** Get all events in a specific location by country or city name.
 	 *
 	 * @param	string	$location	Specifies a location to retrieve events for (service returns nearby events by default). (Optional)
@@ -22,7 +22,7 @@ class Geo {
 	 */
 	public static function getEvents($location = null, $lat = null, $long = null,
 									 $distance = null, $page = null){
-		$xml = CallerFactory::getDefaultCaller()->call('geo.getEvents', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('geo.getEvents', array(
 			'location' => $location,
 			'lat'      => $lat,
 			'long'     => $long,
@@ -33,16 +33,16 @@ class Geo {
 		$events = array();
 
 		foreach($xml->children() as $event){
-			$events[] = Event::fromSimpleXMLElement($event);
+			$events[] = LastFM_Event::fromSimpleXMLElement($event);
 		}
 
 		$perPage = intval(ceil(
-			Util::toInteger($xml['total']) / Util::toInteger($xml['totalpages'])
+			LastFM_Util::toInteger($xml['total']) / LastFM_Util::toInteger($xml['totalpages'])
 		));
 
-		return new PaginatedResult(
-			Util::toInteger($xml['total']),
-			(Util::toInteger($xml['page']) - 1) * $perPage,
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($xml['total']),
+			(LastFM_Util::toInteger($xml['page']) - 1) * $perPage,
 			$perPage,
 			$events
 		);
@@ -58,14 +58,14 @@ class Geo {
 	 * @throws	Error
 	 */
 	public static function getTopArtists($country){
-		$xml = CallerFactory::getDefaultCaller()->call('geo.getTopArtists', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('geo.getTopArtists', array(
 			'country' => $country
 		));
 
 		$artists = array();
 
 		foreach($xml->children() as $artist){
-			$artists[] = Artist::fromSimpleXMLElement($artist);
+			$artists[] = LastFM_Artist::fromSimpleXMLElement($artist);
 		}
 
 		return $artists;
@@ -82,7 +82,7 @@ class Geo {
 	 * @throws	Error
 	 */
 	public static function getTopTracks($country, $location = null){
-		$xml = CallerFactory::getDefaultCaller()->call('geo.getTopTracks', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('geo.getTopTracks', array(
 			'country'  => $country,
 			'location' => $location
 		));
@@ -90,7 +90,7 @@ class Geo {
 		$tracks = array();
 
 		foreach($xml->children() as $track){
-			$tracks[] = Track::fromSimpleXMLElement($track);
+			$tracks[] = LastFM_Track::fromSimpleXMLElement($track);
 		}
 
 		return $tracks;

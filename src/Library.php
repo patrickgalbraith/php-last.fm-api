@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Library {
+class LastFM_Library {
 	/** Add an album to a user's last.fm library.
 	 *
 	 * @param	string	$artist		The artist that composed the album. (Required)
@@ -18,7 +18,7 @@ class Library {
 	 * @throws	Error
 	 */
 	public static function addAlbum($artist, $album, $session){
-		CallerFactory::getDefaultCaller()->signedCall('library.addAlbum', array(
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('library.addAlbum', array(
 			'artist' => $artist,
 			'album'  => $album
 		), $session, 'POST');
@@ -34,7 +34,7 @@ class Library {
 	 * @throws	Error
 	 */
 	public static function addArtist($artist, $session){
-		CallerFactory::getDefaultCaller()->signedCall('library.addArtist', array(
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('library.addArtist', array(
 			'artist' => $artist
 		), $session, 'POST');
 	}
@@ -50,7 +50,7 @@ class Library {
 	 * @throws	Error
 	 */
 	public static function addTrack($artist, $track, $session){
-		CallerFactory::getDefaultCaller()->signedCall('library.addTrack', array(
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('library.addTrack', array(
 			'artist' => $artist,
 			'track'  => $track
 		), $session, 'POST');
@@ -68,7 +68,7 @@ class Library {
 	 * @throws	Error
 	 */
 	public static function getAlbums($user, $limit = null, $page = null){
-		$xml = CallerFactory::getDefaultCaller()->call('library.getAlbums', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('library.getAlbums', array(
 			'user'  => $user,
 			'limit' => $limit,
 			'page'  => $page
@@ -77,14 +77,14 @@ class Library {
 		$albums = array();
 
 		foreach($xml->children() as $album){
-			$albums[] = Album::fromSimpleXMLElement($album);
+			$albums[] = LastFM_Album::fromSimpleXMLElement($album);
 		}
 
-		$perPage = Util::toInteger($xml['perPage']);
+		$perPage = LastFM_Util::toInteger($xml['perPage']);
 
-		return new PaginatedResult(
-			Util::toInteger($xml['totalPages']) * $perPage,
-			(Util::toInteger($xml['page']) - 1) * $perPage,
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($xml['totalPages']) * $perPage,
+			(LastFM_Util::toInteger($xml['page']) - 1) * $perPage,
 			$perPage,
 			$albums
 		);
@@ -102,7 +102,7 @@ class Library {
 	 * @throws	Error
 	 */
 	public static function getArtists($user, $limit = null, $page = null){
-		$xml = CallerFactory::getDefaultCaller()->call('library.getArtists', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('library.getArtists', array(
 			'user'  => $user,
 			'limit' => $limit,
 			'page'  => $page
@@ -111,14 +111,14 @@ class Library {
 		$artists = array();
 
 		foreach($xml->children() as $artist){
-			$artists[] = Artist::fromSimpleXMLElement($artist);
+			$artists[] = LastFM_Artist::fromSimpleXMLElement($artist);
 		}
 
-		$perPage = Util::toInteger($xml['perPage']);
+		$perPage = LastFM_Util::toInteger($xml['perPage']);
 
-		return new PaginatedResult(
-			Util::toInteger($xml['totalPages']) * $perPage,
-			(Util::toInteger($xml['page']) - 1) * $perPage,
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($xml['totalPages']) * $perPage,
+			(LastFM_Util::toInteger($xml['page']) - 1) * $perPage,
 			$perPage,
 			$artists
 		);
@@ -136,7 +136,7 @@ class Library {
 	 * @throws	Error
 	 */
 	public static function getTracks($user, $limit, $page){
-		$xml = CallerFactory::getDefaultCaller()->call('library.getTracks', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('library.getTracks', array(
 			'user'  => $user,
 			'limit' => $limit,
 			'page'  => $page
@@ -145,14 +145,14 @@ class Library {
 		$tracks = array();
 
 		foreach($xml->children() as $track){
-			$tracks[] = Track::fromSimpleXMLElement($track);
+			$tracks[] = LastFM_Track::fromSimpleXMLElement($track);
 		}
 
-		$perPage = Util::toInteger($xml['perPage']);
+		$perPage = LastFM_Util::toInteger($xml['perPage']);
 
-		return new PaginatedResult(
-			Util::toInteger($xml['totalPages']) * $perPage,
-			(Util::toInteger($xml['page']) - 1) * $perPage,
+		return new LastFM_PaginatedResult(
+			LastFM_Util::toInteger($xml['totalPages']) * $perPage,
+			(LastFM_Util::toInteger($xml['page']) - 1) * $perPage,
 			$perPage,
 			$tracks
 		);

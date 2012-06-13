@@ -6,10 +6,10 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-abstract class Cache {
+abstract class LastFM_Cache {
 	/** The CachePolicy that's used.
 	 *
-	 * @var		CachePolicy
+	 * @var		LastFM_Cache_CachePolicy
 	 * @access	private
 	 */
 	private $policy;
@@ -19,14 +19,14 @@ abstract class Cache {
 	 * @access	protected
 	 */
 	protected function __construct(){
-		$this->policy = new DefaultCachePolicy();
+		$this->policy = new LastFM_Cache_DefaultCachePolicy();
 	}
 
 	/** Returns the CachePolicy that's used.
 	 *
 	 * @return	CachePolicy	A CachePolicy object.
 	 * @access	public
-	 * @see		CachePolicy
+	 * @see		LastFM_Cache_CachePolicy
 	 */
 	public function getPolicy(){
 		return $this->policy;
@@ -36,9 +36,9 @@ abstract class Cache {
 	 *
 	 * @param	CachePolicy	$policy	A CachePolicy object.
 	 * @access	public
-	 * @see		CachePolicy
+	 * @see		LastFM_Cache_CachePolicy
 	 */
-	public function setPolicy(CachePolicy $policy){
+	public function setPolicy(LastFM_Cache_CachePolicy $policy){
 		$this->policy = $policy;
 	}
 

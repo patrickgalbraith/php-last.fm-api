@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Event {
+class LastFM_Event {
 	/** Event id.
 	 *
 	 * @var integer
@@ -30,7 +30,7 @@ class Event {
 
 	/** Event venue.
 	 *
-	 * @var Venue
+	 * @var LastFM_Venue
 	 * @access	private
 	 */
 	private $venue;
@@ -109,7 +109,7 @@ class Event {
 	 *
 	 * @access	public
 	 */
-	public function __construct($id, $title, array $artists, Venue $venue,
+	public function __construct($id, $title, array $artists, LastFM_Venue $venue,
 								$startDate, $description, $images, $url,
 								$attendance, $reviews, $tag){
 		$this->id          = $id;
@@ -236,7 +236,7 @@ class Event {
 	 * @throws	Error
 	 */
 	public static function attend($event, $status, $session){
-		CallerFactory::getDefaultCaller()->signedCall('event.attend', array(
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('event.attend', array(
 			'event'  => $event,
 			'status' => $status
 		), $session, 'POST');
@@ -252,11 +252,11 @@ class Event {
 	 * @throws	Error
 	 */
 	public static function getInfo($event){
-		$xml = CallerFactory::getDefaultCaller()->call('event.getInfo', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('event.getInfo', array(
 			'event' => $event
 		));
 
-		return Event::fromSimpleXMLElement($xml);
+		return LastFM_Event::fromSimpleXMLElement($xml);
 	}
 
 	/** Get shouts for this event.
@@ -269,14 +269,14 @@ class Event {
 	 * @throws	Error
 	 */
 	public static function getShouts($event){
-		$xml = CallerFactory::getDefaultCaller()->call('event.getShouts', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('event.getShouts', array(
 			'event' => $event
 		));
 
 		$shouts = array();
 
 		foreach($xml->children() as $shout){
-			$shouts[] = Shout::fromSimpleXMLElement($shout);
+			$shouts[] = LastFM_Shout::fromSimpleXMLElement($shout);
 		}
 
 		return $shouts;
@@ -294,7 +294,7 @@ class Event {
 	 * @throws	Error
 	 */
 	public static function share($event, array $recipients, $message = null, $session){
-		CallerFactory::getDefaultCaller()->signedCall('event.share', array(
+		LastFM_Caller_CallerFactory::getDefaultCaller()->signedCall('event.share', array(
 			'event'     => $event,
 			'recipient' => implode(',', $recipients),
 			'message'   => $message
@@ -311,11 +311,11 @@ class Event {
 	 * @throws	Error
 	 */
 	public static function getPlaylist($event){
-		$xml = CallerFactory::getDefaultCaller()->call('event.getPlayerMenu', array(
+		$xml = LastFM_Caller_CallerFactory::getDefaultCaller()->call('event.getPlayerMenu', array(
 			'event' => $event
 		));
 
-		return Playlist::fetch(Util::toString($xml->playlist->url), true, true);
+		return LastFM_Playlist::fetch(LastFM_Util::toString($xml->playlist->url), true, true);
 	}
 
 	/** Create a Event object from a SimpleXMLElement.
@@ -333,31 +333,31 @@ class Event {
 
 		if($xml->artists){
 			foreach($xml->artists->artist as $artist){
-				$artists[] = Util::toString($artist);
+				$artists[] = LastFM_Util::toString($artist);
 			}
 
-			$artists['headliner'] = Util::toString($xml->artists->headliner);
+			$artists['headliner'] = LastFM_Util::toString($xml->artists->headliner);
 		}
 
 		if($xml->image){
 			foreach($xml->image as $image){
-				$images[Util::toImageType($image['size'])] =
-					Util::toString($image);
+				$images[LastFM_Util::toImageType($image['size'])] =
+					LastFM_Util::toString($image);
 			}
 		}
 
-		return new Event(
-			Util::toInteger($xml->id),
-			Util::toString($xml->title),
+		return new LastFM_Event(
+			LastFM_Util::toInteger($xml->id),
+			LastFM_Util::toString($xml->title),
 			$artists,
-			($xml->venue)?Venue::fromSimpleXMLElement($xml->venue):null,
-			Util::toTimestamp($xml->startDate),
-			Util::toString($xml->description),
+			($xml->venue)?LastFM_Venue::fromSimpleXMLElement($xml->venue):null,
+			LastFM_Util::toTimestamp($xml->startDate),
+			LastFM_Util::toString($xml->description),
 			$images,
-			Util::toString($xml->url),
-			Util::toInteger($xml->attendance),
-			Util::toInteger($xml->reviews),
-			Util::toString($xml->tag)
+			LastFM_Util::toString($xml->url),
+			LastFM_Util::toInteger($xml->attendance),
+			LastFM_Util::toInteger($xml->reviews),
+			LastFM_Util::toString($xml->tag)
 		);
 	}
 }

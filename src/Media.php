@@ -6,7 +6,7 @@
  * @author  Felix Bruns <felixbruns@web.de>
  * @version	1.0
  */
-class Media {
+class LastFM_Media {
 	/** Name of this medium.
 	 *
 	 * @var string
@@ -117,13 +117,14 @@ class Media {
 	 * @access	public
 	 */
 	public function getImage($size = null){
-		if($size != null){
+		if($size !== null and array_key_exists($size, $this->images)){
 			return $this->images[$size];
 		}
-
-		for($size = Media::IMAGE_ORIGINAL; $size > Media::IMAGE_UNKNOWN; $size--){
-			if(array_key_exists($size, $this->images)){
-				return $this->images[$size];
+		else if ($size === null){
+			for($size = LastFM_Media::IMAGE_ORIGINAL; $size > LastFM_Media::IMAGE_UNKNOWN; $size--){
+				if(array_key_exists($size, $this->images)){
+					return $this->images[$size];
+				}
 			}
 		}
 
